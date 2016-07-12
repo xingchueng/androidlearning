@@ -30,4 +30,9 @@ Android docs 里面包含了以下目录的内容，用以描述所有应用场�
 然后就是各个 practices 的示例代码了。
 
 这次主要是想把这部分内容全部过一遍，用 github 来记录、并鞭策自己努力完成吧。
-[SystemServer] (https://github.com/xingchueng/androidlearning/blob/gh-pages/Framework/services/SystemServer.md)
+
+## Framework
+
+主要包括Android的Framework的分析和学习
+
+1. [SystemServer] (https://github.com/xingchueng/androidlearning/blob/gh-pages/Framework/services/SystemServer.md)
