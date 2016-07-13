@@ -227,11 +227,63 @@ Framework中采用的是C/S模式的架构，所有服务都作为Server端为�
 在`SystemServer.java`中，后面的代码就使用了这个服务。这里将服务与`Context`关联在一起了。也有直接使用`ServiceManager`的例子，如下：
 
 	(IPowerManager)ServiceManager.getService(Context.POWER_SERVICE)
-这里获取的是电源管理方面的服务。而将系统服务注册到`Context`中调用的是`SystemServiceRegistry.java`中的以下函数：
+这里获取的是电源管理方面的服务。那么这个电源管理的服务是什么时候注册到`ServiceManager`中的呢？可以看到获取了这个服务之后，将其转换为`IPowerManager`类型了，应该是一个Binder类型，可以搜到以下文件：
+
+	./core/java/android/os/IPowerManager.aidl
+所以应该是调用了`SystemService`的`publishBinderService（）`函数，在`PowerManagerService.java`中，有如下代码：
+
+	public void onStart() {
+        publishBinderService(Context.POWER_SERVICE, new BinderService());
+        ...
+    }
+而这个`BinderService`就是`IPowerManager`的一个子类，也是`PowerManagerService`类的一个内部类：
+
+	    private final class BinderService extends IPowerManager.Stub {
+	    ...
+	    ｝
+
+
+而将系统服务注册到`Context`中调用的是`SystemServiceRegistry.java`中的以下函数：
 
 	 private static <T> void registerService(String serviceName, Class<T> serviceClass,
             ServiceFetcher<T> serviceFetcher) {
         SYSTEM_SERVICE_NAMES.put(serviceClass, serviceName);
         SYSTEM_SERVICE_FETCHERS.put(serviceName, serviceFetcher);
     }
-    
+比如，将`PowerManager`注册到`Context`中，由以下代码执行：
+
+	SystemServiceRegistry.java:366:  registerService(Context.POWER_SERVICE, PowerManager.class,
+	....
+这样，就可以通过`Context`以及常量Context.POWER_SERVICE来获取这个服务了：
+	
+	./services/core/java/com/android/server/policy/PhoneWindowManager.java:1380:        mPowerManager = (PowerManager)context.getSystemService(Context.POWER_SERVICE);
+
+
+
+
+## some services could be optmized.
+---
+1.WallpaperManagerService
+R.bool.config_enableWallpaperService
+
+2.GestureLauncherService
+
+3.com.android.server.print.PrintManagerService
+
+## Some points.
+---
+    // We start this here so that we update our configuration to set watch or television
+    // as appropriate.
+    mSystemServiceManager.startService(UiModeManagerService.class);
+    try {
+        mPackageManagerService.performBootDexOpt();
+    } catch (Throwable e) {
+        reportWtf("performing boot dexopt", e);
+    }
+    try {
+        ActivityManagerNative.getDefault().showBootMessage(
+                context.getResources().getText(
+                        com.android.internal.R.string.android_upgrading_starting_apps),
+                false);
+    } catch (RemoteException e) {
+    }
