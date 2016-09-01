@@ -36,3 +36,4 @@ Android docs 里面包含了以下目录的内容，用以描述所有应用场�
 主要包括Android的Framework的分析和学习
 
 1. [SystemServer] (https://github.com/xingchueng/androidlearning/blob/gh-pages/Framework/services/SystemServer.md)
+2. [Usb 模式总结] (https://github.com/xingchueng/androidlearning/blob/gh-pages/Framework/services/Android%20USB%E6%A8%A1%E5%BC%8F.md)
